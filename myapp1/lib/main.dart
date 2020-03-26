@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'map.dart';
 import 'alarms.dart';
+import 'farmacias.dart';
 void main(){
   SystemChrome.setEnabledSystemUIOverlays([]);
   runApp(MyApp());
@@ -167,7 +168,12 @@ class _MyHomePageState extends State<MyHomePage> {
                             child: new RaisedButton(
                               elevation:5.0,
                               color : Colors.blueGrey,
-                              onPressed: () {},
+                              onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (BuildContext context) => Farmacias()),
+                                  );
+                              },
                               child: Column(
                                    mainAxisAlignment: MainAxisAlignment.center,
                                    children:[
