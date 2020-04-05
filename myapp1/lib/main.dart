@@ -3,6 +3,7 @@ import 'map.dart';
 import 'alarms.dart';
 import 'settings.dart';
 import 'farmacias.dart';
+import 'shop.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -266,6 +267,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 color : Colors.lightBlue,
                                 onPressed: () {
                                   initState();
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => Shop()),
+                                    );
                                 },
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
