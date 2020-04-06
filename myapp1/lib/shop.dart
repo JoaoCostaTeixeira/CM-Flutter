@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:myapp1/tabs/first.dart';
 import 'package:myapp1/tabs/second.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -119,4 +119,4 @@ class ShopState extends State<Shop> with SingleTickerProviderStateMixin{
       body: MedicationPage(),
     );
   }
-}
+}*/

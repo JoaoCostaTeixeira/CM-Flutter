@@ -265,13 +265,13 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: new RaisedButton(
                                 elevation:5.0,
                                 color : Colors.lightBlue,
-                                onPressed: () {
+                               /* onPressed: () {
                                   initState();
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) => Shop()),
                                     );
-                                },
+                                },*/
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children:[

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+/*import 'package:flutter/material.dart';
 import 'package:myapp1/add_medication.dart';
 import 'package:myapp1/medication_list/medication_list.dart';
 import 'package:myapp1/medication_list/modal/medication.dart';
@@ -43,4 +43,4 @@ class MedicationPage extends StatelessWidget {
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
-}
+}*/
