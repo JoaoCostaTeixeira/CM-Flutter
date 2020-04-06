@@ -9,18 +9,12 @@ class DatabaseHelper {
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
 
-  static final table = 'Alarm';
+  static final table = 'medToalarm';
   
   static final columnId = '_id';
-  static final columnHora = 'hora';
-  static final columnMin = 'min';
-  static final columnSeg = 'seg';
-  static final columnTer = 'ter';
-  static final columnQua = 'qua';
-  static final columnQui = 'quin';
-  static final columnSex = 'sex';
-  static final columnSab = 'sab';
-  static final columnDom = 'dom';
+  static final columnIdAlarm = 'alarm';
+  static final columnIdMed = 'med';
+
   // make this a singleton class
   DatabaseHelper._privateConstructor();
   static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
@@ -48,15 +42,8 @@ class DatabaseHelper {
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
-            $columnHora INTEGER NOT NULL,
-            $columnMin INTEGER NOT NULL,
-            $columnSeg INTEGER NOT NULL,
-            $columnTer INTEGER NOT NULL,
-            $columnQua INTEGER NOT NULL,
-            $columnQui INTEGER NOT NULL,
-            $columnSex INTEGER NOT NULL,
-            $columnSab INTEGER NOT NULL,
-            $columnDom INTEGER NOT NULL,
+            $columnIdAlarm INTEGER NOT NULL,
+            $columnIdMed INTEGER NOT NULL,
 
           )
           ''');

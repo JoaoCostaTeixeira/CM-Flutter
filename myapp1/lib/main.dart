@@ -3,6 +3,7 @@ import 'map.dart';
 import 'alarms.dart';
 import 'settings.dart';
 import 'farmacias.dart';
+import 'house.dart';
 import 'shop.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -226,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => MyMap()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Houses()),
                                     );
                                   },
                                 child: Column(
@@ -616,7 +617,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => MyMap()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Houses()),
                                     );
                                   },
                                 child: Column(
