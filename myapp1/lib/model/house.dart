@@ -16,6 +16,7 @@ class DatabaseHelper {
   static final columnName = 'name';
   static final columnLat = 'lat';
   static final columnLong = 'long';
+  static final columnRaio = 'raio';
   static final columnActive = 'active';
 
   // make this a singleton class
@@ -42,18 +43,41 @@ class DatabaseHelper {
 
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
+    
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
-            $columnLat INTEGER NOT NULL,
-            $columnLong INTEGER NOT NULL,
+            $columnLat REAL NOT NULL,
+            $columnLong REAL NOT NULL,
+            $columnRaio REAL NOT NULL,
             $columnActive INTEGER NOT NULL
 
           )
           ''');
   }
-  
+    Future create() async {
+    Database db = await instance.database;
+    await db.execute('''
+          CREATE TABLE $table (
+            $columnId INTEGER PRIMARY KEY,
+            $columnName TEXT NOT NULL,
+            $columnLat REAL NOT NULL,
+            $columnLong REAL NOT NULL,
+            $columnRaio REAL NOT NULL,
+            $columnActive INTEGER NOT NULL
+
+          )
+          ''');
+  }
+
+    Future dropTable() async {
+       Database db = await instance.database;
+    await db.execute('''
+          DROP TABLE IF EXISTS $table
+          ''');
+  }
+
   // Helper methods
 
   // Inserts a row in the database where each key in the Map is a column name

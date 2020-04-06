@@ -13,7 +13,7 @@ class MyMap extends StatelessWidget {
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
                  title: new Text("Mapa"),
-                 backgroundColor: Colors.blueGrey,),
+                 backgroundColor: Colors.green,),
 
       body: MapSample(),
     );
