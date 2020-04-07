@@ -10,6 +10,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'medicationPage.dart';
 
 import 'model/house.dart';
 import 'model/alarme.dart';
@@ -363,7 +364,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: new RaisedButton(
                                 elevation:5.0,
                                 color : Colors.redAccent,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (BuildContext context) => Medication()),
+                                    );
+                                },
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children:[
@@ -378,8 +384,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Padding(
                                             padding: const EdgeInsets.only(bottom: 10),
                                             child: Text(
-                                                     (lng =='pt' ? 'Perfil' : 'Profile'),
-                                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                     (lng =='pt' ? 'Medicamentos' : 'Medicin'),
+                                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
                                                   )
                                           ),
                                     ]
@@ -749,7 +755,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: new RaisedButton(
                                 elevation:5.0,
                                 color : Colors.redAccent,
-                                onPressed: () {},
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (BuildContext context) => Medication()),
+                                    );
+                                },
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children:[
@@ -764,8 +775,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                           Padding(
                                             padding: const EdgeInsets.only(bottom: 10),
                                             child: Text(
-                                                    (lng =='pt' ? 'Perfil' : 'Profile'),
-                                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                    (lng =='pt' ? 'Medicamentos' : 'Medicin'),
+                                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.white),
                                                   )
                                           ),
                                     ]

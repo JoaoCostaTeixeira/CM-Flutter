@@ -15,7 +15,7 @@ class ListMed{
     
      ];
 
-    _getOne(int i){
+    getOne(int i){
       if(i<=listMed.length){
           return listMed[i];
       }else{
