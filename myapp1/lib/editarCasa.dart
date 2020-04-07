@@ -6,12 +6,15 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'model/house.dart';
 
+class MyMapEdit extends StatelessWidget {
 
-void main() => runApp(MyMap());
+  String name;
+  double raio;
+  LatLng center;
+  int id;
 
-class MyMap extends StatelessWidget {
+  MyMapEdit ({ @required this.name, @required this.raio, @required this.center, @required this.id});
 
- 
   @override
   Widget build(BuildContext context) {
      SystemChrome.setPreferredOrientations([
@@ -22,114 +25,60 @@ class MyMap extends StatelessWidget {
       resizeToAvoidBottomPadding: false,
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
-                 title: new Text("Mapa"),
+                 title: new Text("Editar"),
                  backgroundColor: Colors.green,),
 
-      body: MapSample(),
+      body: MapEditSample(name : name, raio: raio, center: center,id:id),
     );
   }
 }
 
-class MapSample extends StatefulWidget {
+class MapEditSample extends StatefulWidget {
+  String name;
+  double raio;
+  LatLng center;
+  int id;
+
+  MapEditSample ({@required this.name, @required this.raio, @required this.center, @required this.id});
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MapEditSample> createState() => MapEditSampleState(name : name, raio: raio, center: center, id: id);
 }
 
-class MapSampleState extends State<MapSample> {
+class MapEditSampleState extends State<MapEditSample> {
+  String name;
+  double raio;
+  LatLng center;
+  int id;
+
+  MapEditSampleState ({@required this.name, @required this.raio, @required this.center,  @required this.id});
+
   GoogleMapController _controller;
 
  CameraPosition _kGooglePlex = CameraPosition(
-    target: LatLng(40.638272, -8.654327),
+    target: LatLng( 40,8),
     zoom: 0,
   );
 
 
-  bool serviceStatus = false;
+
+
+
   bool loading = true;
-  bool permission = false;
-  bool marker = false;
-  Location location = new Location();
-  LocationData locationData;
   final Set<Marker> _markers= {};
   final dbHelper = DatabaseHelper2.instance;
- Set<Circle> _circles = {}; 
+  Set<Circle> _circles = {}; 
   String nome = "";
   double _value=9.0;
-// verifica se o serviço esta on
-  _getServiceStatus() async {
-      bool _serviceEnabled;
-      _serviceEnabled = await location.serviceEnabled();
-      if (!_serviceEnabled) {
-        _serviceEnabled = await location.requestService();
-        if (!_serviceEnabled) {
-          setState(() {
-            loading = false;
-          });
-        }else{
-            setState(() {
-            serviceStatus = true;
-          });
-        }
-      }else{
-        setState(() {
-            serviceStatus = true;
-          });
-      }
-    }
+  int ids;
 
 
-  _getPermission() async {
-    PermissionStatus _permissionGranted;
-    _permissionGranted = await location.hasPermission();
-     print('oioi1');
-        if (_permissionGranted != PermissionStatus.GRANTED) {
-          _permissionGranted = await location.requestPermission();
-          if (_permissionGranted == PermissionStatus.GRANTED) {
-              setState(() {
-              permission = true;
-            });
-          }else{
-             setState(() {
-                loading = false;
-                permission = false;
-          });
-          }
-        }else{
-          setState(() {
-            permission = true;
-          });
-        }             
-    }
-    void _showDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: new Text("Tem a certeza que pertende adicionar esta localização?"),
-          actions: <Widget>[
-            new FlatButton(
-              child: new Text("Não"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            new FlatButton(
-              child: new Text("Sim"),
-              onPressed: () {
-                 _addCasa();
-                 Navigator.of(context).pop();
-              },
-            )
-          ],
-        );
-      },
-    );
-  }
 
-    _addCasa() async{
-        if(nome != " "){
+    _update() async{
+        if(nome != ""){
+          print(ids);
           LatLng center = _circles.first.center;
           Map<String, dynamic> row = {
+                  DatabaseHelper2.columnId : ids,
                   DatabaseHelper2.columnName : nome,
                   DatabaseHelper2.columnLat  : center.latitude,
                   DatabaseHelper2.columnLong : center.longitude,
@@ -137,8 +86,8 @@ class MapSampleState extends State<MapSample> {
                   DatabaseHelper2.columnRaio : _value,
                 };
 
-            final id = await dbHelper.insert(row);
-            print('inserted row id: $id');
+            final ida = await dbHelper.update(row);
+            print('inserted row id: $ida');
             Navigator.pop(context);
         }else{
              showDialog(
@@ -160,50 +109,60 @@ class MapSampleState extends State<MapSample> {
         }
     }
 
-    _getLocation() async {
-          await location.getLocation().then((local){
-
-                   setState(() {
-                     _kGooglePlex = CameraPosition (target: LatLng(local.latitude, local.longitude), zoom: 17 );
-                      locationData=local ;
-                      loading = false;
-
-
-
-                    });
-
-
-
-          });
-         }     
+    void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Tem a certeza que pertende adicionar esta localização?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Não"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("Sim"),
+              onPressed: () {
+                _update();
+                 Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
     @override
     void initState() {
-          if(marker){
-            print("asd");
-             LatLng s;
-            _markers.map((f){ 
-              s =f.position;
-              });
             setState(() {
-               _kGooglePlex = CameraPosition (target: s, zoom: 17 );
-                    
+                _value = raio;
+                nome = name;
+                _circles.add(Circle(
+                        circleId: CircleId("1"),
+                        center: center,
+                        radius: raio/2,
+                        fillColor: Colors.red,
+                        strokeWidth: 0,
+                    ));
+                _markers.add(
+                      Marker(
+                        markerId: MarkerId("1"),
+                        position:center,
+                          icon: BitmapDescriptor.defaultMarker,
+                      )
+                  );
+                  ids = id;
+                  _kGooglePlex = CameraPosition(
+                            target: center,
+                            zoom: 19,
+                          );
+
+                          loading = false;
+
+                            
             });
-          }else{
-            _getServiceStatus().then( 
-            (Null) {
-              if(loading){
-                  _getPermission().then(
-                      (Null) {
-                          if(loading){  
-                            _getLocation().then(
-                            );   
-                          }
-                   });
-                }
-            }
-          );
-          }
-          
       }
   @override
   Widget build(BuildContext context) {
@@ -224,7 +183,7 @@ class MapSampleState extends State<MapSample> {
               child:Column(   
                 children: <Widget>[
                    Container(
-                      height:(marker ? 150 : 0 ),
+                      height: 150,
                       child: 
                       Column(children: <Widget>[
                           Row(
@@ -290,12 +249,7 @@ class MapSampleState extends State<MapSample> {
                                     elevation: 5.0,
                                     color : Colors.redAccent,
                                     onPressed: (){
-                                      setState(() {
-                                        _markers.clear();
-                                        marker=false;
-                                        _circles.clear();
-                                        _value = 9.0;
-                                      });
+                                      Navigator.pop(context);
                                     },
                                     child:  Padding(
                                                 padding: const EdgeInsets.only(top:5, left: 5, right: 5, bottom: 5),
@@ -312,13 +266,14 @@ class MapSampleState extends State<MapSample> {
                         ]), 
                         Padding(
                           padding: const EdgeInsets.only(top:5, left: 10, right: 10, bottom: 5),
-                          child:TextField(
+                          child:TextFormField(
+                          initialValue: name,
                           decoration: InputDecoration(
                                 border: OutlineInputBorder(),
                                 hintText: 'Nome',
+
                               ),
                               onChanged:  (text){
-                            print(text);
                             setState(() {
                               nome = text;
                             });
@@ -328,7 +283,7 @@ class MapSampleState extends State<MapSample> {
                       ],),
                       ),
                   Container(
-                    height: (marker ? 500 : 640 ),
+                    height: 500,
                     child: GoogleMap(
                       mapType: MapType.hybrid,
                       markers: _markers,
@@ -338,27 +293,6 @@ class MapSampleState extends State<MapSample> {
                       },
                       circles: _circles,
                       onTap: (point){
-                        if(!marker){  
-                          setState(() {
-                            _markers.add(
-                                Marker(
-                                  markerId: MarkerId("1"),
-                                  position:point,
-                                   icon: BitmapDescriptor.defaultMarker,
-                                )
-                            );
-                             _controller.animateCamera(CameraUpdate.newCameraPosition(CameraPosition (target: point, zoom: 19)));
-                            _circles.add(Circle(
-                                  circleId: CircleId("1"),
-                                  center: point,
-                                  radius: _value/2,
-                                  fillColor: Colors.red,
-                                  strokeWidth: 0,
-                              ));
-                            marker=true;
-
-                          });
-                        }
                       },
                     ) ,
                   ),

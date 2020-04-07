@@ -1,27 +1,25 @@
-
 import 'dart:io';
 
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseHelper2 {
+class DatabaseHelper {
   
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
 
-  static final table = 'House';
+  static final table = 'FarmaciaFav';
   
   static final columnId = '_id';
-  static final columnName = 'name';
+  static final columnNome = 'nome';
   static final columnLat = 'lat';
   static final columnLong = 'long';
-  static final columnRaio = 'raio';
-  static final columnActive = 'active';
+  static final columnMorada = 'morada';
 
   // make this a singleton class
-  DatabaseHelper2._privateConstructor();
-  static final DatabaseHelper2 instance = DatabaseHelper2._privateConstructor();
+  DatabaseHelper._privateConstructor();
+  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database _database;
@@ -43,41 +41,18 @@ class DatabaseHelper2 {
 
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
-    
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
-            $columnName TEXT NOT NULL,
+            $columnNome TEXT NOT NULL,
             $columnLat REAL NOT NULL,
             $columnLong REAL NOT NULL,
-            $columnRaio REAL NOT NULL,
-            $columnActive INTEGER NOT NULL
+            $columnMorada TEXT NOT NULL,
 
           )
           ''');
   }
-    Future create() async {
-    Database db = await instance.database;
-    await db.execute('''
-         CREATE TABLE IF NOT EXISTS $table (
-            $columnId INTEGER PRIMARY KEY,
-            $columnName TEXT NOT NULL,
-            $columnLat REAL NOT NULL,
-            $columnLong REAL NOT NULL,
-            $columnRaio REAL NOT NULL,
-            $columnActive INTEGER NOT NULL
-
-          )
-          ''');
-  }
-
-    Future dropTable() async {
-       Database db = await instance.database;
-    await db.execute('''
-          DROP TABLE IF EXISTS $table
-          ''');
-  }
-
+  
   // Helper methods
 
   // Inserts a row in the database where each key in the Map is a column name
@@ -106,7 +81,6 @@ class DatabaseHelper2 {
   // column values will be used to update the row.
   Future<int> update(Map<String, dynamic> row) async {
     Database db = await instance.database;
-    print(row);
     int id = row[columnId];
     return await db.update(table, row, where: '$columnId = ?', whereArgs: [id]);
   }
@@ -117,4 +91,5 @@ class DatabaseHelper2 {
     Database db = await instance.database;
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
+
 }

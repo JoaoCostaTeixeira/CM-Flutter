@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp1/model/farmaciaFav.dart';
 import 'map.dart';
 import 'alarms.dart';
 import 'settings.dart';
@@ -9,6 +10,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import 'model/house.dart';
+import 'model/alarme.dart';
 
 
 void main() =>runApp(MyApp());
@@ -49,6 +53,10 @@ class _MyHomePageState extends State<MyHomePage> {
     bool hide = true;
     bool loading = true;
     String lng;
+
+     final dbHelper1 = DatabaseHelper1.instance;
+     final dbHelper2 = DatabaseHelper2.instance;
+
     Future<Corona> fetchFarmacia() async {
       final response =
           await http.get('https://corona.lmao.ninja/all');
@@ -63,13 +71,13 @@ class _MyHomePageState extends State<MyHomePage> {
       }
     }
 
-    void getPrefs() async{ 
+    Future getPrefs() async{ 
       await SharedPreferences.getInstance().then((prefs){
           print ('prefs pls');
            setState(() {
               lng = prefs.getString("linguagem") ?? "pt";
               print(lng);
-              loading = false;
+              
            });
       });
       
@@ -89,7 +97,17 @@ class _MyHomePageState extends State<MyHomePage> {
            }
           );
           
-         getPrefs();
+         getPrefs().then((Null){
+            dbHelper1.create().then((Null){ //BAse de dados CAsas
+                dbHelper2.create().then((Null){ // Base de dados alarmes
+                    setState(() {
+                        loading = false;
+                    });
+              });
+            });
+          
+         });
+
      }
 
     @override

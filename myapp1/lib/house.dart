@@ -2,10 +2,12 @@ import 'dart:async';
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
 import 'model/house.dart';
 import 'map.dart';
+import 'editarCasa.dart';
 
 void main() => runApp(Houses());
 
@@ -32,7 +34,7 @@ class HousesSampleState extends State<HousesSample> {
   
   bool loading = true;
   bool deleating = false;
-  final dbHelper = DatabaseHelper.instance;
+  final dbHelper = DatabaseHelper2.instance;
   List<House> houseList= [];
   List<Padding> printPad = [];
 
@@ -62,6 +64,7 @@ class HousesSampleState extends State<HousesSample> {
     print('query all rows:');
     allRows.forEach((row) {
       setState(() {
+        print(row['_id']);
         houseList.add(
           House(
             id: row['_id'],
@@ -104,15 +107,18 @@ class HousesSampleState extends State<HousesSample> {
     );
   }
 
+  
+
 
     @override
     void initState() {
-
+      
     _query().then((Null){
           List<Padding> pad = [];
           int size = houseList.length;
           houseList.forEach((f){
             size --;
+            print("id: " + f.id.toString());
              pad.add(
                    Padding(
                              padding: (size == 0 ? const EdgeInsets.only(top:10, bottom: 85) : const EdgeInsets.only(top:10)),
@@ -162,7 +168,14 @@ class HousesSampleState extends State<HousesSample> {
                                                         borderRadius: new BorderRadius.circular(0.0),
                                                         side: BorderSide(color: Colors.black38)
                                                       ),
-                                                    onPressed: () {},
+                                                    onPressed: () {
+                                                       Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(builder: (context) => MyMapEdit(center : LatLng(f.lat, f.long), raio: f.raio, id : f.id, name : f.nome)),
+                                                              ).then( (Null){
+                                                              initState();
+                                                              });
+                                                    },
                                                     color: Colors.transparent,
                                                     child: Row(
                                                       mainAxisAlignment: MainAxisAlignment.center,

@@ -51,7 +51,7 @@ class FarmaciasSampleState extends State<FarmaciasSample> {
   
 Future<FarmaciasList> fetchFarmacia() async {
   final response =
-      await http.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+locationData.latitude.toString() + ','+locationData.longitude.toString()+'&rankby=distance&language=pt-PT&types=pharmacy&key=AIzaSyBd-g7-IXCQMedKUaWZvEmGojk1WeLSk9A');
+      await http.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json?location='+locationData.latitude.toString() + ','+locationData.longitude.toString()+'&rankby=distance&language=pt-PT&types=pharmacy&key=AIzaSyAJWnpsN6ex46vpLXYE_A8qeuo776cgHsA');
   if (response.statusCode == 200) {
     // If the server did return a 200 OK response,
     // then parse the JSON.
@@ -135,7 +135,9 @@ Future<FarmaciasList> fetchFarmacia() async {
                                    fetchFarmacia().then(
                                      (farmac) {
                                        print(farmac.results.length);
+                                         farmac.results.forEach( (f) => print(f.name + " " + f.vicinity + " " + f.geo.local.lat.toString() + " " + f.geo.local.long.toString()));
                                        farmac.results.forEach( (f) =>
+                                        
                                             farmaciasss.add( Padding(
                                                                   padding: const EdgeInsets.only(top:10, bottom: 10),
                                                                   child: Container(
@@ -344,12 +346,41 @@ class FarmaciasList {
 class FarmciaList {
 
   final String name;
-
-  FarmciaList({this.name});
+  final String vicinity;
+  final GeometryFarm geo;
+  FarmciaList({this.name, this.vicinity, this.geo});
 
   factory FarmciaList.fromJson(Map<String, dynamic> json) {
+      var list = json['geometry'] as GeometryFarm;
+
     return FarmciaList(
       name: json['name'],
+      vicinity: json['vicinity'],
+      geo : list,
+    );
+  }
+}
+class GeometryFarm {
+    final LocationFarm local;
+    GeometryFarm ({this.local});
+    
+ factory GeometryFarm.fromJson(Map<String, dynamic> json) {
+      var list = json['location'] as LocationFarm;
+
+    return GeometryFarm(
+      local: list,
+    );
+  }
+}
+class LocationFarm {
+  final double lat;
+  final double long;
+
+  LocationFarm ({this.lat, this.long});
+    factory LocationFarm.fromJson(Map<String, dynamic> json) {
+    return LocationFarm(
+      lat: json['lat'],
+      long: json['lng']
     );
   }
 }
