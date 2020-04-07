@@ -9,9 +9,6 @@ import 'map.dart';
 
 void main() => runApp(Houses());
 
-
-
-
 class Houses extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -25,7 +22,6 @@ class Houses extends StatelessWidget {
     );
   }
 }
- bool isSwitched = true;
 
 class HousesSample extends StatefulWidget {
   @override
@@ -35,24 +31,32 @@ class HousesSample extends StatefulWidget {
 class HousesSampleState extends State<HousesSample> {
   
   bool loading = true;
-   final dbHelper = DatabaseHelper.instance;
-    List<House> houseList= [];
-    List<Padding> printPad = [];
-   void _insert() async {
-    // row to insert
-    Map<String, dynamic> row = {
-      DatabaseHelper.columnName : 'Rua José Soares de Almeida',
-      DatabaseHelper.columnLat  : 23,
-      DatabaseHelper.columnLong  : 23,
-      DatabaseHelper.columnActive : 1,
-      DatabaseHelper.columnRaio: 10,
+  bool deleating = false;
+  final dbHelper = DatabaseHelper.instance;
+  List<House> houseList= [];
+  List<Padding> printPad = [];
 
-    };
-    final id = await dbHelper.insert(row);
-    print('inserted row id: $id');
+//Remove uma casa
+  _remove(int i) async {
+    int s = 0;
+    dbHelper.delete(i);
+    houseList.forEach(
+      (f) {
+        if(f.id == i){
+          setState(() {
+             houseList.removeAt(s);
+             printPad.removeAt(s);
+          });
+        }else{
+          s++;
+        }
+      }
+    );
   }
 
+  //retorna todas as casas
    _query() async {
+     houseList.clear();
      print('query all rows:');
     final allRows = await dbHelper.queryAllRows();
     print('query all rows:');
@@ -73,21 +77,49 @@ class HousesSampleState extends State<HousesSample> {
     });
   }
 
+// pop up dialog
+  void _showDialog(int i, String name) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: new Text("Deseja remover $name?"),
+          actions: <Widget>[
+            new FlatButton(
+              child: new Text("Não"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            new FlatButton(
+              child: new Text("Sim"),
+              onPressed: () {
+                _remove(i);
+                 Navigator.of(context).pop();
+              },
+            )
+          ],
+        );
+      },
+    );
+  }
 
 
     @override
     void initState() {
-     // _insert();
+
     _query().then((Null){
           List<Padding> pad = [];
+          int size = houseList.length;
           houseList.forEach((f){
+            size --;
              pad.add(
                    Padding(
-                             padding: const EdgeInsets.only(top:10) ,
+                             padding: (size == 0 ? const EdgeInsets.only(top:10, bottom: 85) : const EdgeInsets.only(top:10)),
                             child:                         
                               Container(
                                   padding: const EdgeInsets.only(top:10),
-                                  height: 160,
+                                  height: 135,
                                   width:350,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(5.0),
@@ -137,11 +169,8 @@ class HousesSampleState extends State<HousesSample> {
                                                       children: <Widget>[
                                                       Padding(
                                                         padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10) ,
-                                                        child: Icon(
-                                                                      Icons.settings,
-                                                                      color: Colors.white,
-                                                                      size: 25.0,
-                                                                    ), ),
+                                                        child: Icon(Icons.settings, color: Colors.white,size: 25.0,),
+                                                       ),
                                                       
                                                         Text(
                                                             'Editar',
@@ -158,15 +187,14 @@ class HousesSampleState extends State<HousesSample> {
                                               child:
                                             SizedBox(
                                                   width: 175, 
-                                                  height: 60,// specific value
-                                                  
+                                                  height: 60,
                                                   child: FlatButton (
                                                     shape:RoundedRectangleBorder(
                                                         borderRadius: new BorderRadius.circular(0.0),
                                                         side: BorderSide(color: Colors.black38)
                                                       ),
                                                     onPressed: (){
-                                                      
+                                                     _showDialog(f.id, f.nome);
                                                     },
                                                     color: Colors.transparent,
                                                     child: Row(
@@ -174,12 +202,8 @@ class HousesSampleState extends State<HousesSample> {
                                                       children: <Widget>[
                                                       Padding(
                                                         padding: const EdgeInsets.only(right: 10, top: 10, bottom: 10) ,
-                                                        child: Icon(
-                                                                      Icons.close,
-                                                                      color: Colors.white,
-                                                                      size: 25.0,
-                                                                    ), ),
-                                                      
+                                                        child: Icon(Icons.close, color: Colors.white,size: 25.0,),
+                                                       ),
                                                         Text(
                                                             'Remover',
                                                             style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white),
@@ -190,14 +214,10 @@ class HousesSampleState extends State<HousesSample> {
                                                 ),
                                                 ), 
                                               ),
-
-                                            ],),
-                                        
+                                            ],),  
                                       ],
                                     ),
-                                    
                                   ),
-
                           ),
               );
           });
@@ -222,7 +242,8 @@ class HousesSampleState extends State<HousesSample> {
                 ),
                     );
     }else{
-         return Scaffold(
+        if(houseList.length==0){
+              return Scaffold(
            floatingActionButton: RaisedButton (
               elevation:5.0,
               color : Colors.green,
@@ -234,7 +255,10 @@ class HousesSampleState extends State<HousesSample> {
                   Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => MyMap()),
-                      );
+                      ).then( (Null){
+                          print("oioioioioiasd");
+                          initState();
+                        });
                 },
                 child: Padding(
                          padding: const EdgeInsets.all(10),
@@ -249,10 +273,51 @@ class HousesSampleState extends State<HousesSample> {
                   body: Center(
                     child: Column (
                         mainAxisAlignment: MainAxisAlignment.start,
-                        children:printPad,
+                        children:[Text("Adiciona")],
                     ),
                   ),
          );
+        }else{
+          return Scaffold(
+           floatingActionButton: RaisedButton (
+              elevation:5.0,
+              color : Colors.green,
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(18.0),
+                  side: BorderSide(color: Colors.orangeAccent)
+                ),
+               onPressed: () {
+                  Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => MyMap()),
+                      ).then( (Null){
+                          print("oioioioioiasd");
+                          initState();
+                        });
+                },
+                child: Padding(
+                         padding: const EdgeInsets.all(10),
+                             child: new Icon(
+                                      Icons.add,
+                                     color: Colors.white,
+                                      size: 45.0,
+                                ),
+                   ),
+            ),
+                  backgroundColor: Color.fromRGBO(229,239,241, 100),
+                  body: 
+                  SingleChildScrollView(
+                    child: Center(
+                    child: Column (
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children:printPad,
+                    ),
+                  ),
+                  ),
+                  
+         );
+        }
+         
     }
     
   }
