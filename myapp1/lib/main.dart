@@ -14,6 +14,7 @@ import 'medicationPage.dart';
 
 import 'model/house.dart';
 import 'model/alarme.dart';
+import 'model/med.dart';
 
 
 void main() =>runApp(MyApp());
@@ -57,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
      final dbHelper1 = DatabaseHelper1.instance;
      final dbHelper2 = DatabaseHelper2.instance;
+     final dbHelper3 = DatabaseHelper3.instance;
 
     Future<Corona> fetchFarmacia() async {
       final response =
@@ -100,10 +102,13 @@ class _MyHomePageState extends State<MyHomePage> {
           
          getPrefs().then((Null){
             dbHelper1.create().then((Null){ //BAse de dados CAsas
-                dbHelper2.create().then((Null){ // Base de dados alarmes
-                    setState(() {
+                dbHelper2.create().then((Null){
+                  dbHelper3.create().then((Null){
+                      setState(() {
                         loading = false;
                     });
+                  }); // Base de dados alarmes
+                   
               });
             });
           

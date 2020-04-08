@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseHelper {
+class DatabaseHelper3 {
   
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
@@ -17,8 +17,8 @@ class DatabaseHelper {
   static final columnImage = 'image';
 
   // make this a singleton class
-  DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+  DatabaseHelper3._privateConstructor();
+  static final DatabaseHelper3 instance = DatabaseHelper3._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database _database;
@@ -45,7 +45,20 @@ class DatabaseHelper {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnNumber INTEGER NOT NULL,
-            $columnImage TEXT NOT NULL,
+            $columnImage TEXT NOT NULL
+
+          )
+          ''');
+  }
+
+  Future create() async {
+    Database db = await instance.database;
+    await db.execute('''
+         CREATE TABLE IF NOT EXISTS $table (
+            $columnId INTEGER PRIMARY KEY,
+            $columnName TEXT NOT NULL,
+            $columnNumber INTEGER NOT NULL,
+            $columnImage TEXT NOT NULL
 
           )
           ''');

@@ -2,12 +2,8 @@ import 'dart:async';
 
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:location/location.dart';
-import 'package:http/http.dart' as http;
-import 'model/house.dart';
+import 'model/med.dart';
 import 'map.dart';
-import 'editarCasa.dart';
 import 'add_medication.dart';
 
 void main() => runApp(Medication());
@@ -35,8 +31,8 @@ class MedicationSampleState extends State<MedicationSample> {
   
   bool loading = true;
   bool deleating = false;
-  final dbHelper = DatabaseHelper2.instance;
-  List<House> houseList= [];
+  final dbHelper = DatabaseHelper3.instance;
+  List<Medicat> houseList= [];
   List<Padding> printPad = [];
 
 //Remove uma casa
@@ -67,13 +63,11 @@ class MedicationSampleState extends State<MedicationSample> {
       setState(() {
         print(row['_id']);
         houseList.add(
-          House(
+          Medicat(
             id: row['_id'],
-            nome: row['name'],
-            lat: row ['lat'],
-            long: row['long'],
-            active: row['active'],
-            raio: row['raio'],
+            nome: row['nome'],
+            size: row ['number'],
+            image: row['image'],
           ),
         );
       });
@@ -113,7 +107,7 @@ class MedicationSampleState extends State<MedicationSample> {
 
     @override
     void initState() {
-      
+      print('Start');
     _query().then((Null){
           List<Padding> pad = [];
           int size = houseList.length;
@@ -148,7 +142,7 @@ class MedicationSampleState extends State<MedicationSample> {
                                           width: 110,
                                           height: 110,
                                             child:Image.network(
-                                                    'https://picsum.photos/250?image=9',
+                                                   f.image,
                                                       width: 110,
                                                       height: 110,
                                                   )
@@ -161,7 +155,7 @@ class MedicationSampleState extends State<MedicationSample> {
                                                   height: 80,
                                                   child: Padding( padding: const EdgeInsets.only(top:26,right: 6, left: 2),
                                                   child: Text(
-                                                    "madasd asd  asdasd  asdasd asd as dasd ",
+                                                      f.nome,
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25, color: Colors.black87),
                                                       textAlign: TextAlign.center,
                                                   ),),
@@ -171,7 +165,7 @@ class MedicationSampleState extends State<MedicationSample> {
                                                   height: 100,
                                                     child:Padding( padding: const EdgeInsets.only(top:14, bottom: 4, right: 5, left: 5),
                                                   child: Text(
-                                                    "15 Comprimidos",
+                                                      f.size.toString() + " Comprimidos",
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.black87),
                                                       textAlign: TextAlign.center,
                                                   ),),
@@ -289,7 +283,7 @@ class MedicationSampleState extends State<MedicationSample> {
                onPressed: () {
                   Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyMap()),
+                        MaterialPageRoute(builder: (context) => QR()),
                       ).then( (Null){
                           print("oioioioioiasd");
                           initState();
@@ -359,15 +353,13 @@ class MedicationSampleState extends State<MedicationSample> {
 }
 
 
-class House {
+class Medicat {
   final int id;
   final String nome;
-  final double lat;
-  final double long;
-  final double raio;
-  final int active;
+  final int size;
+  final String image;
 
-  House({this.id, this.nome, this.lat, this.long, this.raio, this.active});
+  Medicat({this.id, this.nome, this.size, this.image});
 
 }
 
