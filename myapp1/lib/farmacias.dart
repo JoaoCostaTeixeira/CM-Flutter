@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:http/http.dart' as http;
+import 'model/farmacias.dart';
+import 'webviwer.dart';
 
 void main() => runApp(Farmacias());
 
@@ -46,8 +48,8 @@ class FarmaciasSampleState extends State<FarmaciasSample> {
   Location location = new Location();
   LocationData locationData;
   List <Padding> farmaciaList = new List();
-
-
+  List<Farm> farm = new List();
+  final dbHelper = DatabaseHelperFarm.instance;
   
 Future<FarmaciasList> fetchFarmacia() async {
   final response =
@@ -62,6 +64,122 @@ Future<FarmaciasList> fetchFarmacia() async {
     throw Exception('Failed to load album');
   }
 }
+  //retorna todas as casas
+   _query() async {
+     farm.clear();
+     print('query all rows:');
+    final allRows = await dbHelper.queryAllRows();
+    print('query all rows:');
+    allRows.forEach((row) {
+      setState(() {                                        
+          farmaciaList.add( Padding(
+                        padding: const EdgeInsets.only(top:10, bottom: 10),
+                        child: Container(
+                            padding: const EdgeInsets.only(top:15, left: 15, right: 15),
+                            height: 230,
+                            width:10,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5.0),
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey,
+                                    offset: Offset(1.0, 2.0), //(x,y)
+                                  ),
+                                ],
+                              ),
+                            child:Column(
+                              children: <Widget>[
+                                Padding(
+                                  padding: const EdgeInsets.only(top:15, bottom: 5, left: 3, right: 3),
+                                  child: Text(
+                                    row['nome'],
+                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.black54),
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                  
+                                  Padding(
+                                  padding: const EdgeInsets.only(top:5, left: 3, right: 3),
+                                  child: Text(
+                                    "Morada: " + row['morada'],
+                                    style: TextStyle(fontSize: 15, color: Colors.black54),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                                new Spacer(),
+                                 Row(
+                                children: <Widget>[
+                                  SizedBox(
+                                    width: 140, 
+                                    height: 49,
+                                    child: FlatButton (
+                                      shape:RoundedRectangleBorder(
+                                          borderRadius: new BorderRadius.circular(10.0),
+                                          side: BorderSide(color: Colors.black38)
+                                        ),
+                                      onPressed: (){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => MyWeb(name: row['nome'] + ", " + row['morada'],)),
+                                          );
+                                      },
+                                      color: Colors.blueGrey,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                          Text(
+                                              'Mais informações',
+                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.white),
+                                              textAlign: TextAlign.center,
+                                            )
+                                        ],
+                                      ), 
+                                  ),
+                                  ), 
+                                  new Spacer(),
+                                  SizedBox(
+                                    width: 90, 
+                                    height: 90,
+                                    child: FlatButton (
+                                      onPressed: (){
+                                        
+                                      },
+                                      color: Colors.transparent,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: <Widget>[
+                                        Padding(
+                                          padding: const EdgeInsets.only(right: 14, bottom: 5) ,
+                                          child: Icon(Icons.star_border, color: Colors.black,size: 35.0,),
+                                          )
+                                        ],
+                                      ), 
+                                  ),
+                                  ), 
+                                ],
+                              ),
+                              ],
+                            ), 
+                            ),
+              ),
+            );
+                                       
+      });
+      
+    });
+  }
+
+  _addFar( String n, String v) async{
+
+           Map<String, dynamic> row = {
+              DatabaseHelperFarm.columnNome : n,
+              DatabaseHelperFarm.columnMorada  : v,
+            };
+            await dbHelper.insert(row).then((Null){
+              print("added");
+            });
+  }
 
 
 // verifica se o serviço esta on
@@ -133,40 +251,26 @@ Future<FarmaciasList> fetchFarmacia() async {
                             _getLocation().then(
                               (Null) {
                                    fetchFarmacia().then(
+                                     
                                      (farmac) {
-                                       print(farmac.results.length);
-                                         farmac.results.forEach( (f) => print(f.name + " " + f.vicinity + " " + f.geo.local.lat.toString() + " " + f.geo.local.long.toString()));
-                                       farmac.results.forEach( (f) =>
+                                       print(farmac.results.toString());
+                                       if(0 == 0){
+                                             _query().then((Null){
+                                                setState(() {
+                                                    loading = false;
+                                                });
+                                             });
                                         
-                                            farmaciasss.add( Padding(
-                                                                  padding: const EdgeInsets.only(top:10, bottom: 10),
-                                                                  child: Container(
-                                                                      padding: const EdgeInsets.all(15),
-                                                                      height: 200,
-                                                                      width:10,
-                                                                        decoration: BoxDecoration(
-                                                                          borderRadius: BorderRadius.circular(5.0),
-                                                                          color: Colors.white,
-                                                                          boxShadow: [
-                                                                            BoxShadow(
-                                                                              color: Colors.grey,
-                                                                              offset: Offset(1.0, 2.0), //(x,y)
-                                                                            ),
-                                                                          ],
-                                                                        ),
-                                                                      child: Text(
-                                                                              f.name,
-                                                                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22, color: Colors.black54),
-                                                                              textAlign: TextAlign.left,
-                                                                           ) ,
-                                                                      ),
-                                                        ),
-                                              )
-                                       );
-                                        setState(() {
-                                          farmaciaList = farmaciasss;
-                                          loading = false;
-                                      });
+                                       }else{
+                                         dbHelper.deleteAll().then((Null){
+                                             farmac.results.forEach( (f) => (_addFar(f.name, f.vicinity)));
+                                             _query().then((Null){
+                                                setState(() {
+                                                    loading = false;
+                                                });
+                                             });
+                                         });
+                                       }
                                      }
                                    );
                                   
@@ -347,40 +451,21 @@ class FarmciaList {
 
   final String name;
   final String vicinity;
-  final GeometryFarm geo;
-  FarmciaList({this.name, this.vicinity, this.geo});
+  FarmciaList({this.name, this.vicinity});
 
   factory FarmciaList.fromJson(Map<String, dynamic> json) {
-      var list = json['geometry'] as GeometryFarm;
-
     return FarmciaList(
       name: json['name'],
       vicinity: json['vicinity'],
-      geo : list,
     );
   }
 }
-class GeometryFarm {
-    final LocationFarm local;
-    GeometryFarm ({this.local});
-    
- factory GeometryFarm.fromJson(Map<String, dynamic> json) {
-      var list = json['location'] as LocationFarm;
 
-    return GeometryFarm(
-      local: list,
-    );
-  }
-}
-class LocationFarm {
-  final double lat;
-  final double long;
 
-  LocationFarm ({this.lat, this.long});
-    factory LocationFarm.fromJson(Map<String, dynamic> json) {
-    return LocationFarm(
-      lat: json['lat'],
-      long: json['lng']
-    );
-  }
+class Farm {
+  
+  final int id;
+  final String name;
+  final String vicinity;
+  Farm({this.id,this.name, this.vicinity});
 }

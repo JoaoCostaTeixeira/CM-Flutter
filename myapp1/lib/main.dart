@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myapp1/addAlarm.dart';
 import 'package:myapp1/model/farmaciaFav.dart';
 import 'map.dart';
 import 'alarms.dart';
@@ -6,15 +7,20 @@ import 'settings.dart';
 import 'farmacias.dart';
 import 'house.dart';
 import 'shop.dart';
+
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 import 'medicationPage.dart';
 
 import 'model/house.dart';
 import 'model/alarme.dart';
 import 'model/med.dart';
+import 'model/medicationShop.dart';
+import 'model/farmacias.dart';
 
 
 void main() =>runApp(MyApp());
@@ -59,6 +65,8 @@ class _MyHomePageState extends State<MyHomePage> {
      final dbHelper1 = DatabaseHelper1.instance;
      final dbHelper2 = DatabaseHelper2.instance;
      final dbHelper3 = DatabaseHelper3.instance;
+     final dbHelper4 = DatabaseHelper4.instance;
+     final dbHelper5 = DatabaseHelperFarm.instance;
 
     Future<Corona> fetchFarmacia() async {
       final response =
@@ -104,8 +112,12 @@ class _MyHomePageState extends State<MyHomePage> {
             dbHelper1.create().then((Null){ //BAse de dados CAsas
                 dbHelper2.create().then((Null){
                   dbHelper3.create().then((Null){
-                      setState(() {
-                        loading = false;
+                    dbHelper4.create().then( (Null){
+                      dbHelper5.create().then((Null){
+                            setState(() {
+                               loading = false;
+                           });
+                      });
                     });
                   }); // Base de dados alarmes
                    
@@ -290,13 +302,12 @@ class _MyHomePageState extends State<MyHomePage> {
                               child: new RaisedButton(
                                 elevation:5.0,
                                 color : Colors.lightBlue,
-                               /* onPressed: () {
-                                  initState();
+                                onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => Shop()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Shop()),
                                     );
-                                },*/
+                                },
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children:[
@@ -686,7 +697,10 @@ class _MyHomePageState extends State<MyHomePage> {
                                 elevation:5.0,
                                 color : Colors.lightBlue,
                                 onPressed: () {
-                                  initState();
+                                   Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (BuildContext context) => Shop()),
+                                    );
                                 },
                                 child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,

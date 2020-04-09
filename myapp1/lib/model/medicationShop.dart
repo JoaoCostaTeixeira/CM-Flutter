@@ -4,20 +4,21 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseHelperFarm {
+class DatabaseHelper4 {
   
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
 
-  static final table = 'Farmacia';
+  static final table = 'medShop';
   
   static final columnId = '_id';
-  static final columnNome = 'nome';
-  static final columnMorada = 'morada';
+  static final columnName = 'nome';
+  static final columnNumber = 'number';
+  static final columnImage = 'image';
 
   // make this a singleton class
-  DatabaseHelperFarm._privateConstructor();
-  static final DatabaseHelperFarm instance = DatabaseHelperFarm._privateConstructor();
+  DatabaseHelper4._privateConstructor();
+  static final DatabaseHelper4 instance = DatabaseHelper4._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database _database;
@@ -42,34 +43,27 @@ class DatabaseHelperFarm {
     await db.execute('''
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
-            $columnNome TEXT NOT NULL,
-            $columnMorada TEXT NOT NULL,
+            $columnName TEXT NOT NULL,
+            $columnNumber INTEGER NOT NULL,
+            $columnImage TEXT NOT NULL
+
+          )
+          ''');
+  }
+
+  Future create() async {
+    Database db = await instance.database;
+    await db.execute('''
+         CREATE TABLE IF NOT EXISTS $table (
+            $columnId INTEGER PRIMARY KEY,
+            $columnName TEXT NOT NULL,
+            $columnNumber INTEGER NOT NULL,
+            $columnImage TEXT NOT NULL
 
           )
           ''');
   }
   
-
-  Future create() async {
-    Database db = await instance.database;
-     await db.execute('''
-          CREATE TABLE IF NOT EXISTS $table (
-            $columnId INTEGER PRIMARY KEY,
-            $columnNome TEXT NOT NULL,
-            $columnMorada TEXT NOT NULL
-
-          )
-          ''');
-  }
-
-   Future deleteAll() async {
-    Database db = await instance.database;
-     await db.execute('''
-          DELETE FROM $table
-
-          ''');
-  }
-
   // Helper methods
 
   // Inserts a row in the database where each key in the Map is a column name
@@ -108,5 +102,4 @@ class DatabaseHelperFarm {
     Database db = await instance.database;
     return await db.delete(table, where: '$columnId = ?', whereArgs: [id]);
   }
-
 }
