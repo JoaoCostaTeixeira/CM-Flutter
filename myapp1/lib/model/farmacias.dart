@@ -43,7 +43,7 @@ class DatabaseHelperFarm {
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnNome TEXT NOT NULL,
-            $columnMorada TEXT NOT NULL,
+            $columnMorada TEXT NOT NULL
 
           )
           ''');

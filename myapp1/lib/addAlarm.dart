@@ -1,10 +1,45 @@
+import 'dart:isolate';
+
 import 'package:flutter/material.dart';
 import 'model/alarme.dart';
+import 'package:android_alarm_manager/android_alarm_manager.dart';
+import 'alarms.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
 void main() => runApp(AlarmsAdd());
 
 
+ void printHello() async{
+   
+   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  print("bo");
+   var initializationSettingsAndroid = AndroidInitializationSettings('logo');
+      var initializationSettings = InitializationSettings(initializationSettingsAndroid, null);
+      await flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: selectNotification);
+      var androidPlatformChannelSpecifics = AndroidNotificationDetails('2', 'aiai','your channel description',
+        importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
 
+    var platformChannelSpecifics = NotificationDetails(
+        androidPlatformChannelSpecifics, null);
+      await flutterLocalNotificationsPlugin.show(
+          0, 'plain title', 'plain body', platformChannelSpecifics,
+          payload: 'item x');
 
+ 
+  
+ }
+
+  Future selectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+    print("carreguei");
+    await Navigator.push(
+      null,
+      MaterialPageRoute(builder: (context) => Alarms()),
+    );    
+}
+ 
 class AlarmsAdd extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -27,6 +62,9 @@ class AlarmsAddSample extends StatefulWidget {
 
 class AlarmsAddSampleState extends State<AlarmsAddSample> {
 
+  
+// initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+
   bool seg = false;
   bool ter = false;
   bool qua = false;
@@ -47,6 +85,8 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
 
   int hora = 12;
   int min = 12;
+
+ 
 
 
   final dbHelper = DatabaseHelper1.instance;
@@ -71,6 +111,8 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
               );
           
         }else{
+
+
           Map<String, dynamic> row = {
                   DatabaseHelper1.columnHora : hora,
                   DatabaseHelper1.columnMin  : min,
@@ -85,8 +127,10 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
 
                 };
 
-            final id = await dbHelper.insert(row);
-            print('inserted row id: $id');
+            final helloAlarmID = await dbHelper.insert(row);
+            await AndroidAlarmManager.initialize();
+            await AndroidAlarmManager.periodic(const Duration(minutes: 1), helloAlarmID, printHello);
+            print('inserted row id: $helloAlarmID');
             Navigator.pop(context);
           }
     }
@@ -200,8 +244,19 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
   
   
 
+void _damn (){
+  print('fds');
+}
+
   @override
     void initState() {
+        AndroidAlarmManager.cancel(2).then((Null){
+       print("ui");
+      });
+      
+       AndroidAlarmManager.periodic(const Duration(seconds: 3), 2, printHello).then((Null){
+       print("ui");
+      });
 }
   @override
   Widget build(BuildContext context) {

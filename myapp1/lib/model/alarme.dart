@@ -58,7 +58,7 @@ class DatabaseHelper1 {
             $columnSex INTEGER NOT NULL,
             $columnSab INTEGER NOT NULL,
             $columnDom INTEGER NOT NULL,
-            $columnActive INTEGER NOT NULL,
+            $columnActive INTEGER NOT NULL
 
           )
           ''');

@@ -43,7 +43,7 @@ class DatabaseHelper {
           CREATE TABLE $table (
             $columnId INTEGER PRIMARY KEY,
             $columnIdAlarm INTEGER NOT NULL,
-            $columnIdMed INTEGER NOT NULL,
+            $columnIdMed INTEGER NOT NULL
 
           )
           ''');
