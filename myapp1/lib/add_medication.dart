@@ -1,17 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:barcode_scan/barcode_scan.dart';
 import 'package:flutter/services.dart';
+import 'package:sqflite/sqflite.dart';
 import 'model/medicationList.dart';
-
 import 'model/med.dart';
-
-
-void main() => runApp(QR());
 
 class QR extends StatelessWidget {
 
+  String lng;
+  QR ({ @required this.lng}); 
  
   @override
   Widget build(BuildContext context) {
@@ -23,31 +23,43 @@ class QR extends StatelessWidget {
       resizeToAvoidBottomPadding: false,
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
-                 title: new Text("Adicionar Medicamento"),
+                 title: new Text( (lng == "pt" ? "Adicionar Medicamento" : "Add Medication")),
                  backgroundColor: Colors.redAccent,),
 
-      body: QRSample(),
+      body: QRSample(lng : lng),
     );
   }
 }
 
 class QRSample extends StatefulWidget {
+  String lng;
+   QRSample ({ @required this.lng}); 
   @override
-  State<QRSample> createState() => QRSampleState();
+  State<QRSample> createState() => QRSampleState(lng : lng);
 }
 
 class QRSampleState extends State<QRSample> {
+  String lng; 
+   QRSampleState ({ @required this.lng}); 
  String barcode = "";
   String image = "";
  ListMed m = new ListMed();
+
+
  String nome ="";
  int comp = 0;
+ int size = 0;
  
  bool qrbode = false;
    List<Medicat> houseList= [];
   final dbHelper = DatabaseHelper3.instance;
+    
 
+     void _takePhoto() async {
+      
+    }
 
+  
         _query() async {
             houseList.clear();
             print('query all rows:');
@@ -60,18 +72,21 @@ class QRSampleState extends State<QRSample> {
                   Medicat(
                     id: row['_id'],
                     nome: row['nome'],
-                    size: row ['number'],
+                    size: row ['size'],
                     image: row['image'],
+                    number : row ['number'],
                   ),
                 );
               });
               
             });
           }
+
      _addMed() async{
        bool exist = false;
        int ids = 0;
        int com = 0;
+       int n = 0;
         if(nome != " "){
           _query().then(
             (Null){
@@ -80,7 +95,8 @@ class QRSampleState extends State<QRSample> {
                     if(f.nome == nome){
                       exist = true;
                       ids = f.id;
-                      com = f.size;
+                      com = f.number;
+                      n=f.size;
                     }
                   }
                 );
@@ -90,6 +106,7 @@ class QRSampleState extends State<QRSample> {
                           DatabaseHelper3.columnName : nome,
                           DatabaseHelper3.columnImage  : image,
                           DatabaseHelper3.columnNumber : comp+com,
+                          DatabaseHelper3.columnSize : n,
                         };
 
                     dbHelper.update(row).then(
@@ -102,6 +119,7 @@ class QRSampleState extends State<QRSample> {
                           DatabaseHelper3.columnName : nome,
                           DatabaseHelper3.columnImage  : image,
                           DatabaseHelper3.columnNumber : comp,
+                          DatabaseHelper3.columnSize : size,
                         };
                     dbHelper.insert(row).then(
                       (Null) {
@@ -118,7 +136,7 @@ class QRSampleState extends State<QRSample> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: new Text("Por favor adicione um nome ao medicamento"),
+                    title: new Text((lng == "pt" ? "Por favor adicione um nome ao medicamento": "Please add a name to the medicine")),
                     actions: <Widget>[
                       new FlatButton(
                         child: new Text("ok"),
@@ -151,7 +169,7 @@ class QRSampleState extends State<QRSample> {
                             Padding(
                   padding: const EdgeInsets.only(top:13, left: 10, right: 10, bottom: 10),
                   child:Text(
-                      "Medicamento",
+                      (lng=="pt" ? "Medicamento" : "Medicine"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),
                   ),
                 ),
@@ -202,7 +220,7 @@ class QRSampleState extends State<QRSample> {
                         padding: const EdgeInsets.only(left: 10),
                         child:  
                       Text(
-                        comp.toString() + " comprimidos",
+                        comp.toString() +  (lng=="pt" ? " comprimidos" : " tablets"),
                         style:TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                       ),),
                      Padding(
@@ -286,7 +304,7 @@ class QRSampleState extends State<QRSample> {
                     child: Padding(
                             padding: const EdgeInsets.all(10),
                                 child:  Text(
-                                    "Guardar",
+                                    (lng=="pt" ? "Guardar" : "Save"),
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                     )
                       ),
@@ -310,7 +328,7 @@ class QRSampleState extends State<QRSample> {
                             Padding(
                   padding: const EdgeInsets.only(top:13, left: 10, right: 10, bottom: 5),
                   child:Text(
-                      "Medicamento sem QRCode",
+                      (lng=="pt" ? "Medicamento sem QRCode" : "Medication without QRCode"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                   ),
                 ),
@@ -320,7 +338,7 @@ class QRSampleState extends State<QRSample> {
                   child:TextFormField(
                   decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Nome',
+                        hintText:  (lng=="pt" ? "Nome" : "Name"),
                       ),
                       onChanged:  (text){
                     setState(() {
@@ -335,12 +353,12 @@ class QRSampleState extends State<QRSample> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Número de Comprimidos',
+                        hintText:(lng=="pt" ?  'Número de Comprimidos por Caixa' : "Number of Tablets per Box"),
                         
                       ),
                       onChanged:  (text){
                     setState(() {
-                      nome = text;
+                      size = int.parse(text);
                     });
                   },
                   ),
@@ -351,7 +369,9 @@ class QRSampleState extends State<QRSample> {
                     color: Colors.redAccent,
                     textColor: Colors.white,
                     splashColor: Colors.blueGrey,
-                    onPressed: scan,
+                    onPressed: (){
+                        _takePhoto();
+                    },
                     child:Padding(
                         padding: const EdgeInsets.only(top:10, left: 10, right: 10, bottom: 10),
                         child: new Icon(
@@ -372,11 +392,16 @@ class QRSampleState extends State<QRSample> {
                                       side: BorderSide(color: Colors.red)
                                     ),
                                   onPressed: () {
+                                      setState(() {
+                                            image = "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/once-a-month-contraceptive-pill-1575631448.jpg";
+                                            qrbode = true;
+                                            comp = size;
+                                        });
                                     },
                                     child: Padding(
                                             padding: const EdgeInsets.all(10),
                                                 child:  Text(
-                                                    "Guardar",
+                                                    (lng=="pt" ?  'Guardar' : "Save"),
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                                     )
                                       ),
@@ -401,7 +426,7 @@ class QRSampleState extends State<QRSample> {
                     child: Padding(
                       padding: EdgeInsets.only(top:2 ),
                       child: Text(
-                              "Ou",
+                             (lng=="pt" ?  'Ou' : "Or"),
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                             )
                     ),
@@ -423,7 +448,7 @@ class QRSampleState extends State<QRSample> {
                  Padding(
                   padding: const EdgeInsets.only(top:5, left: 10, right: 10, bottom: 5),
                   child:Text(
-                      "Medicamento com QRCode",
+                     (lng=="pt" ?   "Medicamento com QRCode" : "Medication with QRCode"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                   ),
                 ),
@@ -465,6 +490,7 @@ class QRSampleState extends State<QRSample> {
                       nome = c.name;
                       image = c.image;
                       comp = c.size;
+                      size = c.size;
                       qrbode = true;
                     });
                }
@@ -492,8 +518,9 @@ class Medicat {
   final String nome;
   final int size;
   final String image;
+  final int number;
 
-  Medicat({this.id, this.nome, this.size, this.image});
+  Medicat({this.id, this.nome, this.size, this.image, this.number});
 
 }
 

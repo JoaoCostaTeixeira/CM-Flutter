@@ -9,13 +9,14 @@ class DatabaseHelper3 {
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
 
-  static final table = 'medToalarm';
+  static final table = 'medications';
   
   static final columnId = '_id';
   static final columnName = 'nome';
   static final columnNumber = 'number';
   static final columnImage = 'image';
-
+  static final columnSize = 'size';
+  
   // make this a singleton class
   DatabaseHelper3._privateConstructor();
   static final DatabaseHelper3 instance = DatabaseHelper3._privateConstructor();
@@ -45,7 +46,8 @@ class DatabaseHelper3 {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnNumber INTEGER NOT NULL,
-            $columnImage TEXT NOT NULL
+            $columnImage TEXT NOT NULL,
+            $columnSize INTEGER NOT NULL
 
           )
           ''');
@@ -58,7 +60,8 @@ class DatabaseHelper3 {
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnNumber INTEGER NOT NULL,
-            $columnImage TEXT NOT NULL
+            $columnImage TEXT NOT NULL,
+            $columnSize INTEGER NOT NULL
 
           )
           ''');
@@ -81,12 +84,23 @@ class DatabaseHelper3 {
     return await db.query(table);
   }
 
+
+  Future<List<Map<String, dynamic>>> selectone(int id) async {
+    Database db = await instance.database;
+    return await db.rawQuery('''
+         SELECT _id, nome FROM $table WHERE _id=$id
+        
+          ''');
+  }
+
   // All of the methods (insert, query, update, delete) can also be done using
   // raw SQL commands. This method uses a raw query to give the row count.
   Future<int> queryRowCount() async {
     Database db = await instance.database;
     return Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM $table'));
   }
+
+
 
   // We are assuming here that the id column in the map is set. The other 
   // column values will be used to update the row.

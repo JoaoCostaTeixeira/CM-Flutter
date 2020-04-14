@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp1/addAlarm.dart';
+import 'package:myapp1/alarms/locationAlarm.dart';
 import 'package:myapp1/model/farmaciaFav.dart';
 import 'map.dart';
 import 'alarms.dart';
@@ -21,10 +22,17 @@ import 'model/alarme.dart';
 import 'model/med.dart';
 import 'model/medicationShop.dart';
 import 'model/farmacias.dart';
+import 'model/farmaciaFav.dart';
+import 'model/medToalarm.dart';
+
+
+//Alarms
+import 'package:android_alarm_manager/android_alarm_manager.dart';
+import 'alarms/locationAlarm.dart';
 
 
 void main() =>runApp(MyApp());
-
+final GlobalKey<NavigatorState> navigatorKey = new GlobalKey<NavigatorState>();
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   
@@ -38,6 +46,11 @@ class MyApp extends StatelessWidget {
       ),
       
       home: MyHomePage(title: 'Flutter Demo Home Page'),
+       navigatorKey: navigatorKey,
+        routes: {
+          // When navigating to the "/second" route, build the SecondScreen widget.
+          '/second': (context) => AlarmsAdd(),
+        },
     );
   }
 }
@@ -61,12 +74,15 @@ class _MyHomePageState extends State<MyHomePage> {
     bool hide = true;
     bool loading = true;
     String lng;
+    String first;
 
      final dbHelper1 = DatabaseHelper1.instance;
      final dbHelper2 = DatabaseHelper2.instance;
      final dbHelper3 = DatabaseHelper3.instance;
      final dbHelper4 = DatabaseHelper4.instance;
      final dbHelper5 = DatabaseHelperFarm.instance;
+     final dbHelper6 = DatabaseHelperFarmFav.instance;
+     final dbHelper7 = DatabaseHelperMedtoAlarm.instance;
 
     Future<Corona> fetchFarmacia() async {
       final response =
@@ -87,8 +103,8 @@ class _MyHomePageState extends State<MyHomePage> {
           print ('prefs pls');
            setState(() {
               lng = prefs.getString("linguagem") ?? "pt";
+              first = prefs.getString("first") ?? "1";
               print(lng);
-              
            });
       });
       
@@ -98,6 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
  
      @override
      void initState() {
+       
          fetchFarmacia().then(
            (corona){
              setState(() {
@@ -114,9 +131,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   dbHelper3.create().then((Null){
                     dbHelper4.create().then( (Null){
                       dbHelper5.create().then((Null){
-                            setState(() {
-                               loading = false;
-                           });
+                        dbHelper6.create().then((Null){
+                          dbHelper7.create().then((Null){
+                             setState(() {
+                                loading = false;
+                            });
+                          });
+                        });   
                       });
                     });
                   }); // Base de dados alarmes
@@ -227,7 +248,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => Alarms()),
+                                      MaterialPageRoute(builder: (context) => Alarms(lng : lng)),
                                     );
                                   },
                                 child: Column(
@@ -263,7 +284,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Houses()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Houses(lng : lng)),
                                     );
                                   },
                                 child: Column(
@@ -305,7 +326,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Shop()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Shop(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -341,7 +362,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Farmacias()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Farmacias(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -383,7 +404,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                   Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Medication()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Medication(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -391,11 +412,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children:[
                                           Padding(
                                             padding: const EdgeInsets.only(top:10, left: 10, right: 10),
-                                            child: new Icon(
-                                                      Icons.person,
+                                            child:Image.network(
+                                                  'https://cdn.iconscout.com/icon/premium/png-256-thumb/pill-115-889098.png',
+                                                      width: 95,
+                                                      height: 95,
                                                       color: Colors.white,
-                                                      size: 95.0,
-                                                    ),
+                                                  )
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.only(bottom: 10),
@@ -621,7 +643,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (context) => Alarms()),
+                                      MaterialPageRoute(builder: (context) => Alarms(lng : lng)),
                                     );
                                   },
                                 child: Column(
@@ -657,7 +679,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Houses()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Houses(lng : lng )),
                                     );
                                   },
                                 child: Column(
@@ -699,7 +721,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                    Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Shop()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Shop(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -735,7 +757,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                     Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Farmacias()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Farmacias(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -777,7 +799,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 onPressed: () {
                                   Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (BuildContext context) => Medication()),
+                                      MaterialPageRoute(builder: (BuildContext context) => Medication(lng : lng)),
                                     );
                                 },
                                 child: Column(
@@ -785,11 +807,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                     children:[
                                           Padding(
                                             padding: const EdgeInsets.only(top:10, left: 10, right: 10),
-                                            child: new Icon(
-                                                      Icons.person,
+                                            child: Image.network(
+                                                  'https://cdn.iconscout.com/icon/premium/png-256-thumb/pill-115-889098.png',
+                                                      width: 95,
+                                                      height: 95,
                                                       color: Colors.white,
-                                                      size: 95.0,
-                                                    ),
+                                                  )
                                           ),
                                           Padding(
                                             padding: const EdgeInsets.only(bottom: 10),

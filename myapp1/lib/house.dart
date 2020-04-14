@@ -9,29 +9,36 @@ import 'model/house.dart';
 import 'map.dart';
 import 'editarCasa.dart';
 
-void main() => runApp(Houses());
 
 class Houses extends StatelessWidget {
+  String lng;
+
+  Houses ({this.lng});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
-                 title: new Text("Casas"),
+                 title: new Text((lng == "pt" ? "Casas" : "Houses")),
                  backgroundColor: Colors.green,),
 
-      body: HousesSample(),
+      body: HousesSample(lng : lng),
     );
   }
 }
 
 class HousesSample extends StatefulWidget {
+  String lng;
+
+  HousesSample ({this.lng});
   @override
-  State<HousesSample> createState() => HousesSampleState();
+  State<HousesSample> createState() => HousesSampleState(lng : lng);
 }
 
 class HousesSampleState extends State<HousesSample> {
-  
+  String lng;
+
+  HousesSampleState ({this.lng});
   bool loading = true;
   bool deleating = false;
   final dbHelper = DatabaseHelper2.instance;
@@ -86,7 +93,7 @@ class HousesSampleState extends State<HousesSample> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Deseja remover $name?"),
+          title: new Text((lng == "pt" ? "Deseja remover $name?" : "Do you want to remove $name?")),
           actions: <Widget>[
             new FlatButton(
               child: new Text("Não"),
@@ -267,7 +274,7 @@ class HousesSampleState extends State<HousesSample> {
                onPressed: () {
                   Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyMap()),
+                        MaterialPageRoute(builder: (context) => MyMap(lng : lng)),
                       ).then( (Null){
                           print("oioioioioiasd");
                           initState();
@@ -284,11 +291,13 @@ class HousesSampleState extends State<HousesSample> {
             ),
                   backgroundColor: Color.fromRGBO(229,239,241, 100),
                   body: Center(
-                    child: Column (
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children:[Text("Adiciona")],
+                        child: Text(
+                            (lng == "pt" ?  'Não tem Casas Adicionadas': 'No Homes Added'),
+                             textAlign: TextAlign.center,
+                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black54),
+                                                  
+                        ),
                     ),
-                  ),
          );
         }else{
           return Scaffold(
@@ -302,9 +311,8 @@ class HousesSampleState extends State<HousesSample> {
                onPressed: () {
                   Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => MyMap()),
+                        MaterialPageRoute(builder: (context) => MyMap(lng : lng)),
                       ).then( (Null){
-                          print("oioioioioiasd");
                           initState();
                         });
                 },

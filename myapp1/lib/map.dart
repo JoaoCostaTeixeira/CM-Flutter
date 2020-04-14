@@ -7,10 +7,9 @@ import 'package:flutter/services.dart';
 import 'model/house.dart';
 
 
-void main() => runApp(MyMap());
-
 class MyMap extends StatelessWidget {
-
+  String lng;
+  MyMap ({this.lng});
  
   @override
   Widget build(BuildContext context) {
@@ -22,20 +21,27 @@ class MyMap extends StatelessWidget {
       resizeToAvoidBottomPadding: false,
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
-                 title: new Text("Mapa"),
+                 title: new Text((lng == "pt" ? "Mapa" : "Maps")),
                  backgroundColor: Colors.green,),
 
-      body: MapSample(),
+      body: MapSample(lng : lng),
     );
   }
 }
 
 class MapSample extends StatefulWidget {
+  String lng;
+  MapSample ({this.lng});
+
   @override
-  State<MapSample> createState() => MapSampleState();
+  State<MapSample> createState() => MapSampleState(lng :lng);
 }
 
 class MapSampleState extends State<MapSample> {
+
+  String lng;
+  MapSampleState ({this.lng});
+
   GoogleMapController _controller;
 
  CameraPosition _kGooglePlex = CameraPosition(
@@ -105,16 +111,16 @@ class MapSampleState extends State<MapSample> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: new Text("Tem a certeza que pertende adicionar esta localização?"),
+          title: new Text((lng == "pt" ? "Tem a certeza que pertende adicionar esta localização?" :"Are you sure you want to add this location?")),
           actions: <Widget>[
             new FlatButton(
-              child: new Text("Não"),
+              child: new Text((lng == "pt" ? "Não" : "No")),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             new FlatButton(
-              child: new Text("Sim"),
+              child: new Text((lng == "pt" ? "Sim" : "Yes")),
               onPressed: () {
                  _addCasa();
                  Navigator.of(context).pop();
@@ -145,7 +151,7 @@ class MapSampleState extends State<MapSample> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: new Text("Por favor adicione um nome à Localização"),
+                    title: new Text((lng == "pt" ? "Por favor adicione um nome à Localização" : "Please add a name to the Location")),
                     actions: <Widget>[
                       new FlatButton(
                         child: new Text("ok"),
@@ -315,7 +321,7 @@ class MapSampleState extends State<MapSample> {
                           child:TextField(
                           decoration: InputDecoration(
                                 border: OutlineInputBorder(),
-                                hintText: 'Nome',
+                                hintText: (lng == "pt" ? "Nome" : "Name"),
                               ),
                               onChanged:  (text){
                             print(text);

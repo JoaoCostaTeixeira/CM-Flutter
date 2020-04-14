@@ -7,11 +7,10 @@ import 'model/medicationList.dart';
 
 import 'model/medicationShop.dart';
 
-
-void main() => runApp(QRShop());
-
 class QRShop extends StatelessWidget {
+  String lng;
 
+  QRShop({this.lng});
  
   @override
   Widget build(BuildContext context) {
@@ -23,20 +22,27 @@ class QRShop extends StatelessWidget {
       resizeToAvoidBottomPadding: false,
      backgroundColor: Color.fromARGB(250, 245, 245, 245),
           appBar: new AppBar(
-                 title: new Text("Adicionar Medicamento"),
+                 title: new Text( (lng == "pt" ? "Adicionar Medicamento" : "Add Medication")),
                  backgroundColor: Colors.lightBlue,),
 
-      body: QRShopSample(),
+      body: QRShopSample(lng : lng),
     );
   }
 }
 
 class QRShopSample extends StatefulWidget {
+   String lng;
+
+  QRShopSample({this.lng});
   @override
-  State<QRShopSample> createState() => QRShopSampleState();
+  State<QRShopSample> createState() => QRShopSampleState(lng : lng);
 }
 
 class QRShopSampleState extends State<QRShopSample> {
+   String lng;
+
+  QRShopSampleState({this.lng});
+
  String barcode = "";
   String image = "";
  ListMed m = new ListMed();
@@ -85,7 +91,7 @@ class QRShopSampleState extends State<QRShopSample> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: new Text("Por favor adicione um nome ao medicamento"),
+                    title: new Text((lng == "pt" ? "Por favor adicione um nome ao medicamento": "Please add a name to the medicine")),
                     actions: <Widget>[
                       new FlatButton(
                         child: new Text("ok"),
@@ -118,7 +124,7 @@ class QRShopSampleState extends State<QRShopSample> {
                             Padding(
                   padding: const EdgeInsets.only(top:13, left: 10, right: 10, bottom: 10),
                   child:Text(
-                      "Medicamento",
+                      (lng=="pt" ? "Medicamento" : "Medicine"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),
                   ),
                 ),
@@ -169,7 +175,7 @@ class QRShopSampleState extends State<QRShopSample> {
                         padding: const EdgeInsets.only(left: 10),
                         child:  
                       Text(
-                        comp.toString() + " comprimidos",
+                        comp.toString() +  (lng=="pt" ? " comprimidos" : " tablets"),
                         style:TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                       ),),
                      Padding(
@@ -253,7 +259,7 @@ class QRShopSampleState extends State<QRShopSample> {
                     child: Padding(
                             padding: const EdgeInsets.all(10),
                                 child:  Text(
-                                    "Guardar",
+                                    (lng=="pt" ? "Guardar" : "Save"),
                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                     )
                       ),
@@ -277,7 +283,7 @@ class QRShopSampleState extends State<QRShopSample> {
                             Padding(
                   padding: const EdgeInsets.only(top:13, left: 10, right: 10, bottom: 5),
                   child:Text(
-                      "Medicamento sem QRCode",
+                       (lng=="pt" ? "Medicamento sem QRCode" : "Medication without QRCode"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                   ),
                 ),
@@ -287,7 +293,7 @@ class QRShopSampleState extends State<QRShopSample> {
                   child:TextFormField(
                   decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Nome',
+                        hintText:  (lng=="pt" ? "Nome" : "Name"),
                       ),
                       onChanged:  (text){
                     setState(() {
@@ -302,12 +308,12 @@ class QRShopSampleState extends State<QRShopSample> {
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                         border: OutlineInputBorder(),
-                        hintText: 'Número de Comprimidos',
+                        hintText: (lng == "pt" ? 'Número de Comprimidos por caixa' : 'Number of Tablets per Box' ),
                         
                       ),
                       onChanged:  (text){
                     setState(() {
-                      nome = text;
+                      comp = int.parse(text);
                     });
                   },
                   ),
@@ -339,11 +345,15 @@ class QRShopSampleState extends State<QRShopSample> {
                                       side: BorderSide(color: Colors.lightBlue)
                                     ),
                                   onPressed: () {
+                                    setState(() {
+                                            image = "https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/once-a-month-contraceptive-pill-1575631448.jpg";
+                                            qrbode = true;
+                                    });
                                     },
                                     child: Padding(
                                             padding: const EdgeInsets.all(10),
                                                 child:  Text(
-                                                    "Guardar",
+                                                    (lng == "pt" ? "Guardar" : "Save"),
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                                     )
                                       ),
@@ -368,7 +378,7 @@ class QRShopSampleState extends State<QRShopSample> {
                     child: Padding(
                       padding: EdgeInsets.only(top:2 ),
                       child: Text(
-                              "Ou",
+                             (lng == "pt" ? "Ou" : "Or"),
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                             )
                     ),
@@ -390,7 +400,7 @@ class QRShopSampleState extends State<QRShopSample> {
                  Padding(
                   padding: const EdgeInsets.only(top:5, left: 10, right: 10, bottom: 5),
                   child:Text(
-                      "Medicamento com QRCode",
+                     (lng=="pt" ?   "Medicamento com QRCode" : "Medication with QRCode"),
                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17, color: Colors.black),
                   ),
                 ),

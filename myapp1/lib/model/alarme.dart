@@ -64,7 +64,6 @@ class DatabaseHelper1 {
           ''');
   }
 
-
      Future create() async {
     Database db = await instance.database;
         await db.execute('''

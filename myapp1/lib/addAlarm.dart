@@ -5,64 +5,40 @@ import 'model/alarme.dart';
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'alarms.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-
-void main() => runApp(AlarmsAdd());
-
-
- void printHello() async{
-   
-   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  print("bo");
-   var initializationSettingsAndroid = AndroidInitializationSettings('logo');
-      var initializationSettings = InitializationSettings(initializationSettingsAndroid, null);
-      await flutterLocalNotificationsPlugin.initialize(initializationSettings, onSelectNotification: selectNotification);
-      var androidPlatformChannelSpecifics = AndroidNotificationDetails('2', 'aiai','your channel description',
-        importance: Importance.Max, priority: Priority.High, ticker: 'ticker');
-
-    var platformChannelSpecifics = NotificationDetails(
-        androidPlatformChannelSpecifics, null);
-      await flutterLocalNotificationsPlugin.show(
-          0, 'plain title', 'plain body', platformChannelSpecifics,
-          payload: 'item x');
-
- 
-  
- }
-
-  Future selectNotification(String payload) async {
-    if (payload != null) {
-      debugPrint('notification payload: ' + payload);
-    }
-    print("carreguei");
-    await Navigator.push(
-      null,
-      MaterialPageRoute(builder: (context) => Alarms()),
-    );    
-}
+import 'main.dart';
+import 'model/med.dart';
+import 'model/medToalarm.dart';
  
 class AlarmsAdd extends StatelessWidget {
+  
+  String lng;
+  AlarmsAdd ({this.lng});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     backgroundColor: Color.fromARGB(250, 245, 245, 245),
+     backgroundColor: Color.fromARGB(179, 179, 179, 245),
           appBar: new AppBar(
-                 title: new Text("Adicionar Alarme"),
+                 title: new Text((lng == "pt" ?"Adicionar Alarme" : "Add Alarm" )),
                  backgroundColor: Colors.orangeAccent,),
 
-      body: AlarmsAddSample(),
+      body: AlarmsAddSample(lng : lng),
     );
   }
 }
  bool isSwitched = true;
 
 class AlarmsAddSample extends StatefulWidget {
+  String lng;
+  AlarmsAddSample ({this.lng});
   @override
-  State<AlarmsAddSample> createState() => AlarmsAddSampleState();
+  State<AlarmsAddSample> createState() => AlarmsAddSampleState(lng : lng);
 }
 
 class AlarmsAddSampleState extends State<AlarmsAddSample> {
 
-  
+  String lng;
+  AlarmsAddSampleState ({this.lng});
 // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
 
   bool seg = false;
@@ -86,10 +62,78 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
   int hora = 12;
   int min = 12;
 
- 
-
-
+  List <Medicat> listmed = [];
+  List <int> chose = [];
+  List <Row> meded = [];
   final dbHelper = DatabaseHelper1.instance;
+final dbHelperMedToAlarm = DatabaseHelperMedtoAlarm.instance;
+  //retorna todas os medicamentos 
+   _query2() async {
+     meded.clear();
+    final allRows = await dbHelper2.queryAllRows();
+    print('query all rows:');
+    allRows.forEach((row) {
+      setState(() {
+        meded.add(
+          Row (children: <Widget>[
+                           Padding(
+                          padding:  const EdgeInsets.all(20),
+                          child:Text(row['nome'],
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87),
+                                          textAlign: TextAlign.left,),),
+                           
+                           new Spacer(),
+                           Padding(
+                              padding: const EdgeInsets.only(right: 20, top: 10, bottom: 3, left: 10) ,
+                              child: SizedBox(
+                              width: 120, 
+                              height: 50,
+                              child: FlatButton (
+                                
+                                shape:RoundedRectangleBorder(
+                                    borderRadius: new BorderRadius.circular(40.0),
+                                    side: BorderSide(color: Colors.black38),
+                                  ),
+                                onPressed: (){
+                                    if(chose.contains(row['_id'])){
+                                      setState(() {
+                                        chose.remove(row['_id']);
+                                        _query2();
+                                      });
+                                     
+                                    }else{
+                                      setState(() {
+                                         chose.add(row['_id']);
+                                          _query2();
+                                      });
+                                     
+                                    }
+                                },
+                                color: (chose.contains(row['_id'])? Colors.white : Colors.orangeAccent),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 3, top: 3, bottom: 3, left: 3) ,
+                                    child:Text(
+                                          (chose.contains(row['_id'])? (lng == "pt" ?"Remover" : "Remove" ) : (lng == "pt" ?"Adicionar" : "Add" )),
+                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
+                                          textAlign: TextAlign.left,
+                                      ),
+                                    )
+                                  ],
+                                ), 
+                            ),
+                            ),)
+                         ],)
+        );
+      }); 
+    });
+  }
+
+  final dbHelper2 = DatabaseHelper3.instance;
+
+
       _addAlarm() async{
 
         if(!seg && !ter && !qua && !qui && !sex && !sab && !dom){
@@ -97,7 +141,7 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
                 context: context,
                 builder: (BuildContext context) {
                   return AlertDialog(
-                    title: new Text("Por favor adicione um dia da semana"),
+                    title: new Text((lng == "pt" ?"Por favor adicione um dia da semana" : "Please add a day of the week" )),
                     actions: <Widget>[
                       new FlatButton(
                         child: new Text("ok"),
@@ -126,12 +170,16 @@ class AlarmsAddSampleState extends State<AlarmsAddSample> {
                           DatabaseHelper1.columnActive  : 1,
 
                 };
-
-            final helloAlarmID = await dbHelper.insert(row);
-            await AndroidAlarmManager.initialize();
-            await AndroidAlarmManager.periodic(const Duration(minutes: 1), helloAlarmID, printHello);
-            print('inserted row id: $helloAlarmID');
-            Navigator.pop(context);
+                dbHelper.insert(row).then((i1){
+                  chose.forEach((f){
+                         Map<String, dynamic> row2 = {
+                           DatabaseHelperMedtoAlarm.columnIdAlarm : i1,
+                           DatabaseHelperMedtoAlarm.columnIdMed : f,
+                         };
+                         dbHelperMedToAlarm.insert(row2);
+                  });
+                   Navigator.pop(context);
+                });
           }
     }
 
@@ -250,13 +298,8 @@ void _damn (){
 
   @override
     void initState() {
-        AndroidAlarmManager.cancel(2).then((Null){
-       print("ui");
-      });
-      
-       AndroidAlarmManager.periodic(const Duration(seconds: 3), 2, printHello).then((Null){
-       print("ui");
-      });
+      _query2();
+   
 }
   @override
   Widget build(BuildContext context) {
@@ -274,10 +317,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.orangeAccent,
+                          color:  Color.fromRGBO(242, 242, 242, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -325,7 +368,7 @@ void _damn (){
                                           padding: const EdgeInsets.only(left:20,bottom: 10,top:10, right: 20),
                                           child: Text(
                                                 hora.toString(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                                 )
                                         ),
                                         Padding(
@@ -370,7 +413,7 @@ void _damn (){
                                             new Spacer(),
                                                Text(
                                               ":",
-                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.white),
+                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),
                                               ),
                                             new Spacer(),
                                         ],),
@@ -416,7 +459,7 @@ void _damn (){
                                           padding: const EdgeInsets.only(left:20,bottom: 10,top:10, right: 20),
                                           child: Text(
                                                 min.toString(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                                 )
                                         ),
                                         Padding(
@@ -466,10 +509,10 @@ void _damn (){
                       height: 80,
                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.orangeAccent,
+                          color: Color.fromRGBO(242, 242, 242, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -487,8 +530,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Todos",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                     (lng == "pt" ?"Todos" : "All" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -508,15 +551,53 @@ void _damn (){
 
                        ],)
                   ),),
+                Padding(
+                  padding:  const EdgeInsets.only(top: 10, left: 8, right: 8),
+                  child:Container(
+                    height: 200,
+                    width: 400,
+                     decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.0),
+                          color: Color.fromRGBO(242, 242, 242, 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(1.0, 2.0), //(x,y)
+                            ),
+                          ],
+                        ),
+                    child : SingleChildScrollView(child: 
+                    Column(
+                      children: <Widget>[
+                        Padding(padding: const EdgeInsets.all(20),
+                          child:Text(
+                              (lng == "pt" ?"Adicionar Medicamentos" : "Add Medication" ),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87),
+                              textAlign: TextAlign.left,
+                          ),
+                        ) ,
+                          Column(
+                            children:meded,
+                          )
+                         
+                      ],
+                    ),
+                   
+
+                    ) 
+                  ),
+                
+                ),
+                  
 
                          Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10, top: 10, right: 10),
                               child: RaisedButton (
                                   elevation:5.0,
-                                  color : Colors.orangeAccent,
+                                  color :  Colors.orangeAccent,
                                   shape: RoundedRectangleBorder(
                                       borderRadius: new BorderRadius.circular(18.0),
-                                      side: BorderSide(color: Colors.orangeAccent)
+                                      side: BorderSide(color: Colors.black)
                                     ),
                                   onPressed: () {
                                       _addAlarm();
@@ -524,7 +605,7 @@ void _damn (){
                                     child: Padding(
                                             padding: const EdgeInsets.all(10),
                                                 child:  Text(
-                                                    "Guardar",
+                                                     (lng == "pt" ?"Guardar" : "Save" ),
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                                     )
                                       ),
@@ -548,10 +629,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.orangeAccent,
+                          color: Color.fromRGBO(242, 242, 242, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -599,7 +680,7 @@ void _damn (){
                                           padding: const EdgeInsets.only(left:20,bottom: 10,top:10, right: 20),
                                           child: Text(
                                                 hora.toString(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                                 )
                                         ),
                                         Padding(
@@ -644,7 +725,7 @@ void _damn (){
                                             new Spacer(),
                                                Text(
                                               ":",
-                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.white),
+                                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black),
                                               ),
                                             new Spacer(),
                                         ],),
@@ -690,7 +771,7 @@ void _damn (){
                                           padding: const EdgeInsets.only(left:20,bottom: 10,top:10, right: 20),
                                           child: Text(
                                                 min.toString(),
-                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                                 )
                                         ),
                                         Padding(
@@ -740,10 +821,10 @@ void _damn (){
                       height: 600,
                        decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.orangeAccent,
+                          color:  Color.fromRGBO(242, 242, 242, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -762,8 +843,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Todos",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                     (lng == "pt" ?"Todos" : "All" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -788,10 +869,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -802,8 +883,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Segunda",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                     (lng == "pt" ?"Segunda" : "Monday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -829,10 +910,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -843,8 +924,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Terça",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Terça" : "Tuesday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -870,10 +951,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -884,8 +965,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Quarta",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Quarta" : "Wednesday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -911,10 +992,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color: Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -925,8 +1006,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Quinta",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Quinta" : "Thursday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -952,10 +1033,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -966,8 +1047,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Sexta",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Sexta" : "Friday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -993,10 +1074,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -1007,8 +1088,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Sábado",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Sábado" : "Saturday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -1034,10 +1115,10 @@ void _damn (){
                       width:350,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5.0),
-                          color: Colors.deepOrangeAccent,
+                          color:  Color.fromRGBO(217, 217, 217, 1),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.orange,
+                              color: Colors.black,
                               offset: Offset(1.0, 2.0), //(x,y)
                             ),
                           ],
@@ -1048,8 +1129,8 @@ void _damn (){
                              Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10),
                               child: Text(
-                                     "Domingo",
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
+                                      (lng == "pt" ?"Domingo" : "Sunday" ),
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
                                     )
                             ),
                             new Spacer(),
@@ -1069,7 +1150,44 @@ void _damn (){
 
                        ],)
                   ),),
+                      Padding(
+                  padding:  const EdgeInsets.only(top: 10, left: 8, right: 8),
+                  child:Container(
+                    height: 200,
+                    width: 400,
+                     decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5.0),
+                          color: Color.fromRGBO(242, 242, 242, 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black,
+                              offset: Offset(1.0, 2.0), //(x,y)
+                            ),
+                          ],
+                        ),
+                    child : SingleChildScrollView(child: 
+                    Column(
+                      children: <Widget>[
+                        Padding(padding: const EdgeInsets.all(20),
+                          child:Text(
+                               (lng == "pt" ?"Adicionar Medicamentos" : "Add Medication" ),
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87),
+                              textAlign: TextAlign.left,
+                          ),
+                        ) ,
+                          Column(
+                            children:meded,
+                          )
+                         
+                      ],
+                    ),
+                   
 
+                    ) 
+                  ),
+                
+                ),
+                  
                          Padding(
                               padding: const EdgeInsets.only(left:20,bottom: 10, top: 10, right: 10),
                               child: RaisedButton (
@@ -1085,7 +1203,7 @@ void _damn (){
                                     child: Padding(
                                             padding: const EdgeInsets.all(10),
                                                 child:  Text(
-                                                    "Guardar",
+                                                    (lng == "pt" ? "Guardar" : "Save" ),
                                                       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.white),
                                                     )
                                       ),
@@ -1099,3 +1217,16 @@ void _damn (){
 }
   }
 }
+
+
+class Medicat {
+  final int id;
+  final String nome;
+  final int size;
+  final String image;
+  final int number;
+
+  Medicat({this.id, this.nome, this.size, this.image, this.number});
+
+}
+

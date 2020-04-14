@@ -41,7 +41,7 @@ class DatabaseHelper4 {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-          CREATE TABLE $table (
+          CREATE TABLE IF NOT EXISTS $table (
             $columnId INTEGER PRIMARY KEY,
             $columnName TEXT NOT NULL,
             $columnNumber INTEGER NOT NULL,

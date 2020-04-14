@@ -4,7 +4,7 @@ import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 
-class DatabaseHelper {
+class DatabaseHelperMedtoAlarm {
   
   static final _databaseName = "BetterDose.db";
   static final _databaseVersion = 1;
@@ -16,8 +16,8 @@ class DatabaseHelper {
   static final columnIdMed = 'med';
 
   // make this a singleton class
-  DatabaseHelper._privateConstructor();
-  static final DatabaseHelper instance = DatabaseHelper._privateConstructor();
+  DatabaseHelperMedtoAlarm._privateConstructor();
+  static final DatabaseHelperMedtoAlarm instance = DatabaseHelperMedtoAlarm._privateConstructor();
 
   // only have a single app-wide reference to the database
   static Database _database;
@@ -40,7 +40,7 @@ class DatabaseHelper {
   // SQL code to create the database table
   Future _onCreate(Database db, int version) async {
     await db.execute('''
-          CREATE TABLE $table (
+          CREATE TABLE IF NOT EXISTS $table (
             $columnId INTEGER PRIMARY KEY,
             $columnIdAlarm INTEGER NOT NULL,
             $columnIdMed INTEGER NOT NULL
@@ -48,6 +48,19 @@ class DatabaseHelper {
           )
           ''');
   }
+
+    Future create() async {
+    Database db = await instance.database;
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS $table (
+            $columnId INTEGER PRIMARY KEY,
+            $columnIdAlarm INTEGER NOT NULL,
+            $columnIdMed INTEGER NOT NULL
+
+          )
+          ''');
+      }
+
   
   // Helper methods
 
@@ -64,6 +77,14 @@ class DatabaseHelper {
   Future<List<Map<String, dynamic>>> queryAllRows() async {
     Database db = await instance.database;
     return await db.query(table);
+  }
+
+   Future<List<Map<String, dynamic>>> selectone(int id) async {
+    Database db = await instance.database;
+    return await db.rawQuery('''
+         SELECT med, alarm, _id FROM $table WHERE alarm=$id
+          
+          ''');
   }
 
   // All of the methods (insert, query, update, delete) can also be done using

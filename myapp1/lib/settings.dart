@@ -93,42 +93,6 @@ _changeNational (int i) async{
       backgroundColor: Colors.black12,
       body: Column(
         children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only( top:10),
-                child:
-              Container(
-                    height: 90,
-                    width:400,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5.0),
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey,
-                            offset: Offset(1.0, 2.0), //(x,y)
-                          ),
-                        ],
-                      ),
-                    child:  Row(children: <Widget>[
-                      Padding(
-                      padding: EdgeInsets.only(left: 10),
-                        child:
-                          Text(
-                                (lng2=='pt' ? 'Tema Escuro' : 'DarkMode'),
-                                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black),
-                                textAlign: TextAlign.center
-                          ),
-                    ),
-                    new Spacer(),
-                    Padding(
-                      padding: EdgeInsets.only(right: 10),
-                        child:
-                          Switch(value: switchbool, onChanged: (value){_switchChange(value);},
-                    ),
-                  
-                    )]),
-          ),
-            ),
          Padding(
               padding: EdgeInsets.only( top:10),
                 child:
