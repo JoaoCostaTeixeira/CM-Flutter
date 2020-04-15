@@ -76,17 +76,30 @@ class AlarmsSampleState extends State<AlarmsSample> {
   }
   
   _removeMed(int i1) async{
+    
     dbHelper.delete(i1).then((Null){
          dbHelper3.selectone(i1).then(
           (value){
+             int size = value.length;
+             if(size==0){
+                 initState();
+             }else{
                 value.forEach((s){
-                    dbHelper.delete(s['_id']);
+                  print(s['_id']);
+                    dbHelper3.delete(s['_id']).then((Null){
+                       size--;
+                        if(size == 0){
+                       initState();
+                    }
+                    });
                 }
                   
                 );
-                initState();
+             }
+                
           }
          );
+         
     });
   }
  _getMedication (int i1) {
@@ -161,6 +174,12 @@ class AlarmsSampleState extends State<AlarmsSample> {
 
   @override
     void initState() {
+      setState(() {
+        print("cleared");
+         printPad.clear();
+         alarmList.clear();
+      });
+     
     _query().then((Null){
           List<Padding> pad = [];
           alarmList.forEach((f){
@@ -426,7 +445,42 @@ class AlarmsSampleState extends State<AlarmsSample> {
 }
   @override
   Widget build(BuildContext context) {
-      
+      if(printPad.length==0){
+        return Scaffold(
+       floatingActionButton: RaisedButton (
+              elevation:5.0,
+              color : Colors.orangeAccent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: new BorderRadius.circular(18.0),
+                  side: BorderSide(color: Colors.orangeAccent)
+                ),
+               onPressed: () {
+                 Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AlarmsAdd(lng : lng )),
+                      ).then( (Null){
+                      initState();
+                      });
+                },
+                child: Padding(
+                         padding: const EdgeInsets.all(10),
+                             child: new Icon(
+                                      Icons.add,
+                                     color: Colors.white,
+                                      size: 45.0,
+                                ),
+                   ),
+            ),
+          body: Center(
+                  child: Text(
+                      (lng == "pt" ?  'Não tem Alarmes': 'No Alarms'),
+                        textAlign: TextAlign.center,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 30, color: Colors.black54),
+                                            
+                  ),
+              ),
+    );
+      }else{
     
     return Scaffold(
        floatingActionButton: RaisedButton (
@@ -458,7 +512,7 @@ class AlarmsSampleState extends State<AlarmsSample> {
                 children: printPad,
               ),
     );
-
+  }
   }
 }
 

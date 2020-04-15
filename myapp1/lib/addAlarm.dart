@@ -78,15 +78,21 @@ final dbHelperMedToAlarm = DatabaseHelperMedtoAlarm.instance;
           Row (children: <Widget>[
                            Padding(
                           padding:  const EdgeInsets.all(20),
-                          child:Text(row['nome'],
+                          child:
+                          Container(
+                            width: 220,
+                            height: 55,
+                            child:  Text(row['nome'] ,
                                           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.black87),
                                           textAlign: TextAlign.left,),),
+                          ),
+                         
                            
                            new Spacer(),
                            Padding(
-                              padding: const EdgeInsets.only(right: 20, top: 10, bottom: 3, left: 10) ,
+                              padding: const EdgeInsets.only(right: 9, top: 2, bottom: 3, left: 3) ,
                               child: SizedBox(
-                              width: 120, 
+                              width: 60, 
                               height: 50,
                               child: FlatButton (
                                 
@@ -115,11 +121,8 @@ final dbHelperMedToAlarm = DatabaseHelperMedtoAlarm.instance;
                                   children: <Widget>[
                                   Padding(
                                     padding: const EdgeInsets.only(right: 3, top: 3, bottom: 3, left: 3) ,
-                                    child:Text(
-                                          (chose.contains(row['_id'])? (lng == "pt" ?"Remover" : "Remove" ) : (lng == "pt" ?"Adicionar" : "Add" )),
-                                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: Colors.black87),
-                                          textAlign: TextAlign.left,
-                                      ),
+                                    child:   
+                                     Icon((chose.contains(row['_id'])? Icons.remove: Icons.add), color: Colors.black,size: 22.0,),
                                     )
                                   ],
                                 ), 
@@ -298,6 +301,9 @@ void _damn (){
 
   @override
     void initState() {
+      setState(() {
+        chose.clear();
+      });
       _query2();
    
 }
